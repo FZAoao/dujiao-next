@@ -81,7 +81,7 @@
           <p>&copy; {{ currentYear }} {{ brandSiteName }}. {{ t('footer.rights') }}</p>
           <p class="flex items-center justify-center gap-1 md:justify-start">
             <a
-              href="https://github.com/dujiao-next"
+              href="https://github.com/FZAoao/dujiao-next"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Dujiao-Next on GitHub"
