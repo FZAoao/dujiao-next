@@ -563,8 +563,9 @@ const (
 
 // 卡密批次来源常量
 const (
-	CardSecretSourceManual = "manual"
-	CardSecretSourceCSV    = "csv"
+	CardSecretSourceManual    = "manual"
+	CardSecretSourceCSV       = "csv"
+	CardSecretSourceSupplyAPI = "supply_api"
 )
 
 // 导出格式常量

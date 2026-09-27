@@ -11,6 +11,7 @@ import (
 	apicredentialtransport "github.com/dujiao-next/internal/modules/apicredential/transport/http"
 	auditlogtransport "github.com/dujiao-next/internal/modules/auditlog/transport/http"
 	cardsecrettransport "github.com/dujiao-next/internal/modules/cardsecret/transport/http"
+	cardsupplyhttp "github.com/dujiao-next/internal/modules/cardsupply/transport/http"
 	categoryhttp "github.com/dujiao-next/internal/modules/catalog/category/transport/http"
 	mappinghttp "github.com/dujiao-next/internal/modules/catalog/mapping/transport/http"
 	producthttp "github.com/dujiao-next/internal/modules/catalog/product/transport/http"
@@ -63,6 +64,7 @@ func registerAdminRoutes(
 	adminApiCredentialHandler *apicredentialtransport.AdminHandler,
 	adminAuditLogHandler *auditlogtransport.AdminHandler,
 	adminCardSecretHandler *cardsecrettransport.AdminHandler,
+	adminCardSupplyHandler *cardsupplyhttp.AdminHandler,
 	adminCatalogCategoryHandler *categoryhttp.AdminCategoryHandler,
 	adminCatalogProductHandler *producthttp.AdminProductHandler,
 	adminCatalogProductMappingHandler *mappinghttp.AdminHandler,
@@ -155,6 +157,7 @@ func registerAdminRoutes(
 	ordertransport.RegisterAdminRefundRoutes(authorized, adminOrderRefundHandler)
 	fulfillmenttransport.RegisterAdminRoutes(authorized, adminFulfillmentHandler)
 	cardsecrettransport.RegisterAdminRoutes(authorized, adminCardSecretHandler)
+	cardsupplyhttp.RegisterAdminRoutes(authorized, adminCardSupplyHandler)
 	giftcardtransport.RegisterAdminRoutes(authorized, adminGiftCardHandler)
 
 	// 优惠券与活动价

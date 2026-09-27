@@ -10,6 +10,8 @@ import (
 // Repository 持久化卡密库存并提供订单占用所需的原子状态迁移。
 type Repository interface {
 	CreateBatch(items []cardsecretdomain.Secret) error
+	ListExistingFingerprints(productID, skuID uint, fingerprints []string) (map[string]struct{}, error)
+	ListExistingSecrets(productID, skuID uint, secrets []string) (map[string]struct{}, error)
 	List(filter ListFilter) ([]cardsecretdomain.Secret, int64, error)
 	ListIDs(filter ListFilter) ([]uint, error)
 	ListByIDs(ids []uint) ([]cardsecretdomain.Secret, error)
@@ -39,6 +41,7 @@ type BatchRepository interface {
 	Create(batch *cardsecretdomain.Batch) error
 	GetByID(id uint) (*cardsecretdomain.Batch, error)
 	ListByProduct(productID, skuID uint, page, pageSize int) ([]cardsecretdomain.Batch, int64, error)
+	FindBySupplyRequest(sourceID uint, requestID string) (*cardsecretdomain.Batch, error)
 	DeleteByProduct(productID uint) error
 }
 

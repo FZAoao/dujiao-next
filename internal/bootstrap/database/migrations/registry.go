@@ -6,6 +6,7 @@ import (
 	apicredentialdomain "github.com/dujiao-next/internal/modules/apicredential/domain"
 	auditlogdomain "github.com/dujiao-next/internal/modules/auditlog/domain"
 	cardsecretdomain "github.com/dujiao-next/internal/modules/cardsecret/domain"
+	cardsupplydomain "github.com/dujiao-next/internal/modules/cardsupply/domain"
 	cartdomain "github.com/dujiao-next/internal/modules/cart/domain"
 	categorydomain "github.com/dujiao-next/internal/modules/catalog/category/domain"
 	mappingdomain "github.com/dujiao-next/internal/modules/catalog/mapping/domain"
@@ -67,6 +68,7 @@ func AutoMigrate() error {
 		&paymentdomain.Payment{},
 		&cardsecretdomain.Secret{},
 		&cardsecretdomain.Batch{},
+		&cardsupplydomain.Source{},
 		&giftcarddomain.GiftCard{},
 		&giftcarddomain.GiftCardBatch{},
 		&fulfillmentdomain.Fulfillment{},

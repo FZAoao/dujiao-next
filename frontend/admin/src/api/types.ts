@@ -198,6 +198,26 @@ export interface AdminUserOAuthIdentity {
   created_at: string
 }
 
+// --- CardSupplySource ---
+export interface AdminCardSupplySource {
+  id: number
+  name: string
+  api_key: string
+  api_secret?: string
+  product_id: number
+  sku_id: number
+  status: number
+  description: string
+  max_batch_size: number
+  ip_allowlist: string
+  last_used_at?: string
+  last_success_at?: string
+  last_failure_at?: string
+  last_error_code?: string
+  created_at: string
+  updated_at: string
+}
+
 // --- CardSecret ---
 export interface AdminCardSecretBatch {
   id: number

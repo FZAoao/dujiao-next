@@ -79,6 +79,21 @@ func (r *BatchStore) ListByProduct(productID, skuID uint, page, pageSize int) ([
 	return items, total, nil
 }
 
+// FindBySupplyRequest 按供号源和外部请求 ID 查找幂等批次。
+func (r *BatchStore) FindBySupplyRequest(sourceID uint, requestID string) (*cardsecretdomain.Batch, error) {
+	if sourceID == 0 || requestID == "" {
+		return nil, nil
+	}
+	var batch cardsecretdomain.Batch
+	if err := r.db.Where("supply_source_id = ? AND external_request_id = ? AND deleted_at IS NULL", sourceID, requestID).First(&batch).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &batch, nil
+}
+
 // DeleteByProduct 删除指定商品下的所有卡密批次
 func (r *BatchStore) DeleteByProduct(productID uint) error {
 	if productID == 0 {

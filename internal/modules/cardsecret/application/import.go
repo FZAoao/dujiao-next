@@ -91,13 +91,14 @@ func (s *Service) CreateCardSecretBatch(input CreateCardSecretBatchInput) (*card
 		items := make([]cardsecretdomain.Secret, 0, len(normalized))
 		for _, secret := range normalized {
 			items = append(items, cardsecretdomain.Secret{
-				ProductID: input.ProductID,
-				SKUID:     sku.ID,
-				BatchID:   &batch.ID,
-				Secret:    secret,
-				Status:    cardsecretdomain.StatusAvailable,
-				CreatedAt: now,
-				UpdatedAt: now,
+				ProductID:         input.ProductID,
+				SKUID:             sku.ID,
+				BatchID:           &batch.ID,
+				Secret:            secret,
+				SecretFingerprint: cardSecretFingerprint(input.ProductID, sku.ID, secret),
+				Status:            cardsecretdomain.StatusAvailable,
+				CreatedAt:         now,
+				UpdatedAt:         now,
 			})
 		}
 		if err := secretRepo.CreateBatch(items); err != nil {

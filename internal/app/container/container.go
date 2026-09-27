@@ -13,6 +13,8 @@ import (
 	captchaapp "github.com/dujiao-next/internal/modules/captcha/application"
 	cardsecretapp "github.com/dujiao-next/internal/modules/cardsecret/application"
 	cardsecretgormstore "github.com/dujiao-next/internal/modules/cardsecret/infrastructure/gormstore"
+	cardsupplyapp "github.com/dujiao-next/internal/modules/cardsupply/application"
+	cardsupplycontract "github.com/dujiao-next/internal/modules/cardsupply/contract"
 	cartapp "github.com/dujiao-next/internal/modules/cart/application"
 	cartgormstore "github.com/dujiao-next/internal/modules/cart/infrastructure/gormstore"
 	categoryapp "github.com/dujiao-next/internal/modules/catalog/category/application"
@@ -97,6 +99,7 @@ type Container struct {
 	PaymentChannelStore    paymentcontract.ChannelStore
 	CardSecretRepo         *cardsecretgormstore.Store
 	CardSecretBatchRepo    *cardsecretgormstore.BatchStore
+	CardSupplyStore        cardsupplycontract.Store
 	GiftCardRepo           *giftcardgormstore.Store
 	FulfillmentStore       fulfillmentcontract.Store
 	ProductRepo            *productgormstore.ProductStore
@@ -160,6 +163,7 @@ type Container struct {
 	PromotionAdminService         *promotionapp.AdminService
 	PaymentService                *paymentapp.PaymentService
 	CardSecretService             *cardsecretapp.Service
+	CardSupplyService             *cardsupplyapp.Service
 	GiftCardService               *giftcardapp.Service
 	UserLoginLogService           *auditlogapp.UserLoginService
 	AuthzAuditService             *auditlogapp.AuthzService
