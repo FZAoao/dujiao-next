@@ -260,6 +260,11 @@ func BuiltinRoleSeeds() []RoleSeed {
 				{Object: "/admin/system/update/start", Action: "POST"},
 				{Object: "/admin/system/update/rollback", Action: "POST"},
 				{Object: "/admin/system/restart", Action: "POST"},
+				// 供号机 API 凭证管理
+				{Object: "/admin/card-supply-sources", Action: "*"},
+				{Object: "/admin/card-supply-sources/:id", Action: "*"},
+				{Object: "/admin/card-supply-sources/:id/status", Action: "PUT"},
+				{Object: "/admin/card-supply-sources/:id/reset-secret", Action: "POST"},
 				// 渠道客户端管理
 				{Object: "/admin/channel-clients", Action: "*"},
 				{Object: "/admin/channel-clients/:id", Action: "*"},

@@ -226,7 +226,7 @@ func isChannelAPIRequest(c *gin.Context) bool {
 	if c == nil || c.Request == nil {
 		return false
 	}
-	return strings.HasPrefix(c.Request.URL.Path, "/api/v1/channel")
+	return strings.HasPrefix(c.Request.URL.Path, "/api/v1/channel") || strings.HasPrefix(c.Request.URL.Path, "/api/v1/card-supply")
 }
 
 // KeyByIP 使用 IP 作为限流 key

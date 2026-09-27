@@ -49,6 +49,45 @@ func (r *Store) CreateBatch(items []cardsecretdomain.Secret) error {
 	return r.db.CreateInBatches(&items, 200).Error
 }
 
+// ListExistingFingerprints 返回指定商品 SKU 下已经存在的卡密指纹。
+func (r *Store) ListExistingFingerprints(productID, skuID uint, fingerprints []string) (map[string]struct{}, error) {
+	result := make(map[string]struct{})
+	if productID == 0 || skuID == 0 || len(fingerprints) == 0 {
+		return result, nil
+	}
+	var values []string
+	if err := r.db.Model(&cardsecretdomain.Secret{}).
+		Where("product_id = ? AND sku_id = ? AND deleted_at IS NULL AND secret_fingerprint IN ?", productID, skuID, fingerprints).
+		Pluck("secret_fingerprint", &values).Error; err != nil {
+		return nil, err
+	}
+	for _, value := range values {
+		if value != "" {
+			result[value] = struct{}{}
+		}
+	}
+	return result, nil
+}
+
+// ListExistingSecrets 返回指定商品 SKU 下已经存在的原始卡密。
+// 该查询用于兼容历史数据中尚未回填 secret_fingerprint 的记录。
+func (r *Store) ListExistingSecrets(productID, skuID uint, secrets []string) (map[string]struct{}, error) {
+	result := make(map[string]struct{})
+	if productID == 0 || skuID == 0 || len(secrets) == 0 {
+		return result, nil
+	}
+	var values []string
+	if err := r.db.Model(&cardsecretdomain.Secret{}).
+		Where("product_id = ? AND sku_id = ? AND deleted_at IS NULL AND secret IN ?", productID, skuID, secrets).
+		Pluck("secret", &values).Error; err != nil {
+		return nil, err
+	}
+	for _, value := range values {
+		result[value] = struct{}{}
+	}
+	return result, nil
+}
+
 func (r *Store) buildListQuery(filter cardsecretcontract.ListFilter) *gorm.DB {
 	query := r.db.Model(&cardsecretdomain.Secret{}).
 		Where("card_secrets.deleted_at IS NULL").

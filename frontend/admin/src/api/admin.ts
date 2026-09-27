@@ -344,6 +344,28 @@ export const adminAPI = {
 
   getProducts: (params?: Record<string, unknown>) => api.get('/admin/products', { params }),
   getProduct: (id: number) => api.get(`/admin/products/${id}`),
+  getCardSupplySources: () => api.get('/admin/card-supply-sources'),
+  getCardSupplySource: (id: number) => api.get(`/admin/card-supply-sources/${id}`),
+  createCardSupplySource: (data: {
+    name: string
+    description?: string
+    product_id: number
+    sku_id: number
+    max_batch_size?: number
+    ip_allowlist?: string
+  }) => api.post('/admin/card-supply-sources', data),
+  updateCardSupplySource: (id: number, data: {
+    name: string
+    description?: string
+    product_id: number
+    sku_id: number
+    max_batch_size?: number
+    ip_allowlist?: string
+  }) => api.put(`/admin/card-supply-sources/${id}`, data),
+  updateCardSupplySourceStatus: (id: number, data: { status: number }) =>
+    api.put(`/admin/card-supply-sources/${id}/status`, data),
+  resetCardSupplySourceSecret: (id: number) => api.post(`/admin/card-supply-sources/${id}/reset-secret`),
+  deleteCardSupplySource: (id: number) => api.delete(`/admin/card-supply-sources/${id}`),
   createProduct: (data: Partial<AdminProduct>) => api.post('/admin/products', data),
   updateProduct: (id: number, data: Partial<AdminProduct>) => api.put(`/admin/products/${id}`, data),
   patchProduct: (id: number, data: { is_active?: boolean; sort_order?: number; category_id?: number }) => api.patch(`/admin/products/${id}`, data),

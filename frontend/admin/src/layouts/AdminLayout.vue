@@ -149,6 +149,12 @@ const navGroups = computed<NavGroup[]>(() => {
           permission: 'GET:/admin/card-secrets',
         },
         {
+          label: t('admin.navItems.cardSupplySources'),
+          to: '/card-supply-sources',
+          icon: KeyRound,
+          permission: 'GET:/admin/card-supply-sources',
+        },
+        {
           label: t('admin.navItems.cardSecretImports'),
           to: '/card-secret-imports',
           icon: KeyRound,

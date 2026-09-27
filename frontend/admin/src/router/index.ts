@@ -43,6 +43,12 @@ const routes = [
         meta: { permission: 'GET:/admin/card-secrets' },
       },
       {
+        path: 'card-supply-sources',
+        name: 'card-supply-sources',
+        component: () => import('@/views/admin/CardSupplySources.vue'),
+        meta: { permission: 'GET:/admin/card-supply-sources' },
+      },
+      {
         path: 'card-secret-imports',
         name: 'card-secret-imports',
         component: () => import('@/views/admin/CardSecretImports.vue'),

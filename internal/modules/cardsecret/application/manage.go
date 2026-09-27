@@ -117,6 +117,7 @@ func (s *Service) UpdateCardSecret(id uint, secret, status string) (*cardsecretd
 	trimmedSecret := strings.TrimSpace(secret)
 	if trimmedSecret != "" {
 		item.Secret = trimmedSecret
+		item.SecretFingerprint = cardSecretFingerprint(item.ProductID, item.SKUID, trimmedSecret)
 	}
 	trimmedStatus := strings.TrimSpace(status)
 	if trimmedStatus != "" {

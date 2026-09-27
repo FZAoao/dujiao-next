@@ -34,6 +34,7 @@ import (
 	auditlogtransport "github.com/dujiao-next/internal/modules/auditlog/transport/http"
 	captchahttp "github.com/dujiao-next/internal/modules/captcha/transport/http"
 	cardsecrettransport "github.com/dujiao-next/internal/modules/cardsecret/transport/http"
+	cardsupplyhttp "github.com/dujiao-next/internal/modules/cardsupply/transport/http"
 	carttransport "github.com/dujiao-next/internal/modules/cart/transport/http"
 	categoryhttp "github.com/dujiao-next/internal/modules/catalog/category/transport/http"
 	mappinghttp "github.com/dujiao-next/internal/modules/catalog/mapping/transport/http"
@@ -50,6 +51,7 @@ import (
 	sitemapbrand "github.com/dujiao-next/internal/modules/sitemap/infrastructure/settingsbrand"
 	sitemaptransport "github.com/dujiao-next/internal/modules/sitemap/transport/http"
 	telegramchanneltransport "github.com/dujiao-next/internal/modules/telegram/channelbot/transport/http"
+	"github.com/dujiao-next/internal/upstream"
 	"github.com/dujiao-next/internal/web"
 
 	"github.com/gin-gonic/gin"
@@ -137,6 +139,9 @@ func SetupRouter(cfg *config.Config, c *container.Container) *gin.Engine {
 	userApiCredentialHandler := apicredentialtransport.NewUserHandler(c.ApiCredentialService)
 	adminAuditLogHandler := auditlogtransport.NewAdminHandler(c.AuthzAuditService, c.UserLoginLogService)
 	adminCardSecretHandler := cardsecrettransport.NewAdminHandler(c.CardSecretService)
+	adminCardSupplyHandler := cardsupplyhttp.NewAdminHandler(c.CardSupplyService, c.AuthzAuditService)
+	cardSupplyHandler := cardsupplyhttp.NewSupplyHandler(c.CardSupplyService)
+	cardSupplyAuth := cardsupplyhttp.CardSupplyAuthMiddleware(c.CardSupplyService)
 	adminCatalogCategoryHandler := categoryhttp.NewAdminCategoryHandler(c.CategoryService)
 	adminCatalogProductHandler := producthttp.NewAdminProductHandler(
 		c.ProductReadService,
@@ -221,6 +226,14 @@ func SetupRouter(cfg *config.Config, c *container.Container) *gin.Engine {
 		BlockSeconds:  30,
 		MessageKey:    "error.rate_limited",
 	}
+	// 供号机 API：按来源 IP 与 API Key 限流，避免单个供号源耗尽公共 API 配额。
+	cardSupplyAPIRule := middleware.RateLimitRule{
+		Prefix:        fmt.Sprintf("%s:rate:card_supply_api", redisPrefix),
+		WindowSeconds: 60,
+		MaxRequests:   60,
+		BlockSeconds:  30,
+		MessageKey:    "error.rate_limited",
+	}
 	// 支付回调 / webhook / 上游回调：网关重试频率远低于此
 	callbackRule := middleware.RateLimitRule{
 		Prefix:        fmt.Sprintf("%s:rate:callback", redisPrefix),
@@ -263,8 +276,18 @@ func SetupRouter(cfg *config.Config, c *container.Container) *gin.Engine {
 	registerStorefrontRoutes(apiV1, cfg, c, publicContentHandler, publicCatalogHandler, publicCategoryHandler, userResellerHandler, userResellerProductSettingHandler, userResellerFinanceHandler, userResellerOrderHandler, userApiCredentialHandler, userAuditLogHandler, userGiftCardHandler, publicMemberLevelHandler, userProfileHandler, userEmailHandler, userPasswordHandler, userVerifyHandler, userTelegramOIDCHandler, userTelegramHandler, userGoogleHandler, userLoginHandler, user2FAHandler, publicConfigHandler, userCartHandler, userOrderHandler, guestOrderHandler, orderPreviewHandler, orderCreateHandler, paymentLatestHandler, paymentWriteHandler, userWalletHandler, redisClient, loginRule, guestReadRule, guestWriteRule, giftCardRedeemRule)
 	registerUpstreamRoutes(apiV1, c, upstreamHandler, redisClient, upstreamAPIRule, callbackRule)
 	registerChannelRoutes(apiV1, c, channelHandler, channelMemberLevelHandler, channelGiftCardHandler, channelAffiliateHandler, channelTelegramBotHandler, channelWalletHandler, redisClient, channelAPIRule)
+	cardsupplyhttp.RegisterSupplyRoutes(
+		apiV1,
+		cardSupplyHandler,
+		cardSupplyAuth,
+		middleware.RateLimitMiddleware(
+			redisClient,
+			cardSupplyAPIRule,
+			middleware.KeyByIPAndHeader(upstream.HeaderApiKey),
+		),
+	)
 	registerPaymentCallbackRoutes(apiV1, paymentCallbackHandler, paymentWebhookHandler, redisClient, callbackRule)
-	registerAdminRoutes(r, apiV1, cfg, c, adminLoginHandler, admin2FAHandler, adminUser2FAHandler, adminUserHandler, adminAuthzHandler, adminFulfillmentHandler, adminOrderHandler, adminOrderRefundHandler, adminContentHandler, adminDashboardHandler, adminMemberLevelHandler, adminApiCredentialHandler, adminAuditLogHandler, adminCardSecretHandler, adminCatalogCategoryHandler, adminCatalogProductHandler, adminCatalogProductMappingHandler, adminCouponHandler, adminGiftCardHandler, adminPromotionHandler, adminNotificationHandler, adminProcurementHandler, adminResellerManagementHandler, adminResellerProfileDetailHandler, adminResellerSiteConfigHandler, adminResellerProductSettingHandler, adminResellerOperationsHandler, adminResellerFinanceHandler, adminSettingsHandler, adminWalletHandler, adminPaymentHandler, adminPaymentChannelHandler, redisClient, adminLoginRule)
+	registerAdminRoutes(r, apiV1, cfg, c, adminLoginHandler, admin2FAHandler, adminUser2FAHandler, adminUserHandler, adminAuthzHandler, adminFulfillmentHandler, adminOrderHandler, adminOrderRefundHandler, adminContentHandler, adminDashboardHandler, adminMemberLevelHandler, adminApiCredentialHandler, adminAuditLogHandler, adminCardSecretHandler, adminCardSupplyHandler, adminCatalogCategoryHandler, adminCatalogProductHandler, adminCatalogProductMappingHandler, adminCouponHandler, adminGiftCardHandler, adminPromotionHandler, adminNotificationHandler, adminProcurementHandler, adminResellerManagementHandler, adminResellerProfileDetailHandler, adminResellerSiteConfigHandler, adminResellerProductSettingHandler, adminResellerOperationsHandler, adminResellerFinanceHandler, adminSettingsHandler, adminWalletHandler, adminPaymentHandler, adminPaymentChannelHandler, redisClient, adminLoginRule)
 
 	// 健康检查
 	r.GET("/health", func(c *gin.Context) {

@@ -9,6 +9,7 @@ import (
 
 	"github.com/dujiao-next/internal/logger"
 	cardsecretapp "github.com/dujiao-next/internal/modules/cardsecret/application"
+	cardsupplyapp "github.com/dujiao-next/internal/modules/cardsupply/application"
 	cartapp "github.com/dujiao-next/internal/modules/cart/application"
 	contentapp "github.com/dujiao-next/internal/modules/content/application"
 	"github.com/dujiao-next/internal/modules/content/infrastructure/gormstore"
@@ -126,6 +127,13 @@ func (c *Container) initApplicationServices() {
 		Products:     c.ProductRepo,
 		ProductSKUs:  c.ProductSKURepo,
 	})
+	c.CardSupplyService = cardsupplyapp.NewService(
+		c.CardSupplyStore,
+		c.ProductRepo,
+		c.ProductSKURepo,
+		c.CardSecretService,
+		c.Config.App.SecretKey,
+	)
 	c.GiftCardService = giftcardapp.NewService(giftcardapp.Options{
 		Repo:     c.GiftCardRepo,
 		Users:    c.UserStore,
