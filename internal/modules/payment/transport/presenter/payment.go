@@ -5,6 +5,7 @@ import (
 
 	paymentdomain "github.com/dujiao-next/internal/modules/payment/domain"
 
+	"github.com/dujiao-next/internal/shared/jsonmap"
 	"github.com/dujiao-next/internal/shared/money"
 )
 
@@ -21,6 +22,7 @@ type CreatePaymentResp struct {
 	Currency        string       `json:"currency"`
 	FeeAmount       money.Amount `json:"fee_amount"`
 	FeePolicy       string       `json:"fee_policy,omitempty"`
+	UserPaysFee     bool         `json:"user_pays_fee,omitempty"`
 	PaymentID       *uint        `json:"payment_id,omitempty"`
 	ChannelID       *uint        `json:"channel_id,omitempty"`
 	ProviderType    string       `json:"provider_type,omitempty"`
@@ -64,6 +66,7 @@ func NewCreatePaymentResp(result *CreatePaymentResultView) CreatePaymentResp {
 		resp.Currency = result.Payment.Currency
 		resp.FeeAmount = result.Payment.FeeAmount
 		resp.FeePolicy = result.Payment.FeePolicy
+		resp.UserPaysFee = readUserPaysFee(result.Payment.ProviderPayload)
 		resp.ExpiresAt = result.Payment.ExpiredAt
 		info := ExtractCryptoWalletInfo(
 			result.Payment.ProviderType,
@@ -99,9 +102,10 @@ type LatestPaymentResp struct {
 	ExpiresAt       *time.Time   `json:"expires_at"`
 	PayableAmount   money.Amount `json:"payable_amount"`
 	// Currency 是 PayableAmount 的实际币种，见 CreatePaymentResp.Currency 注释。
-	Currency  string       `json:"currency"`
-	FeeAmount money.Amount `json:"fee_amount"`
-	FeePolicy string       `json:"fee_policy,omitempty"`
+	Currency    string       `json:"currency"`
+	FeeAmount   money.Amount `json:"fee_amount"`
+	FeePolicy   string       `json:"fee_policy,omitempty"`
+	UserPaysFee bool         `json:"user_pays_fee,omitempty"`
 }
 
 // NewLatestPaymentResp 从 Payment + Order 构造响应
@@ -126,7 +130,11 @@ func NewLatestPaymentResp(payment *paymentdomain.Payment, orderNo string) Latest
 		Currency:        payment.Currency,
 		FeeAmount:       payment.FeeAmount,
 		FeePolicy:       payment.FeePolicy,
+		UserPaysFee:     readUserPaysFee(payment.ProviderPayload),
 	}
-	// 排除：OrderID、FeeRate、FixedFee、Currency、Status、
-	// ProviderRef、GatewayOrderNo、ProviderPayload、CreatedAt、UpdatedAt、PaidAt、CallbackAt
+}
+
+func readUserPaysFee(payload jsonmap.JSON) bool {
+	value, ok := payload["nowpayments_user_pays_fee"].(bool)
+	return ok && value
 }

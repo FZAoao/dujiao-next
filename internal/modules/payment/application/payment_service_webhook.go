@@ -161,6 +161,55 @@ func (s *PaymentService) HandleDujiaoPayWebhook(input WebhookCallbackInput) (*pa
 	return s.commitVerifiedWebhook(channel, result, log)
 }
 
+// HandleNowpaymentsWebhook 处理 NOWPayments IPN。IPN URL 不携带 channel_id，
+// 因此按 provider_type 遍历启用渠道，并用各渠道的 IPN secret 逐个验签。
+func (s *PaymentService) HandleNowpaymentsWebhook(input WebhookCallbackInput) (*paymentdomain.Payment, string, error) {
+	log := paymentLogger(
+		"provider", constants.PaymentProviderNowpayments,
+		"channel_id", input.ChannelID,
+		"body_size", len(input.Body),
+	)
+	if input.ChannelID != 0 {
+		channel, err := s.channelRepo.GetByID(input.ChannelID)
+		if err != nil {
+			return nil, "", ErrPaymentUpdateFailed
+		}
+		if channel == nil || !strings.EqualFold(channel.ProviderType, constants.PaymentProviderNowpayments) {
+			return nil, "", ErrPaymentChannelNotFound
+		}
+		result, err := s.tryParseWebhookWithChannel(channel, input)
+		if err != nil {
+			return nil, "", err
+		}
+		return s.commitVerifiedWebhook(channel, result, log)
+	}
+
+	candidates, _, err := s.channelRepo.List(paymentcontract.ChannelListFilter{
+		ProviderType: constants.PaymentProviderNowpayments,
+		ActiveOnly:   true,
+	})
+	if err != nil {
+		return nil, "", ErrPaymentUpdateFailed
+	}
+	if len(candidates) == 0 {
+		return nil, "", ErrPaymentChannelNotFound
+	}
+	var lastErr error
+	for i := range candidates {
+		channel := candidates[i]
+		result, parseErr := s.tryParseWebhookWithChannel(&channel, input)
+		if parseErr != nil {
+			lastErr = parseErr
+			continue
+		}
+		return s.commitVerifiedWebhook(&channel, result, log)
+	}
+	if lastErr == nil {
+		lastErr = ErrPaymentProviderNotSupported
+	}
+	return nil, "", lastErr
+}
+
 // handleWebhookViaRegistry 通过 Registry 路由 webhook 解析。
 //
 // channel_id 在 URL query 缺失时:

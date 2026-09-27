@@ -189,19 +189,6 @@ const dujiaopayConfig = reactive({
   cancel_url: '',
 })
 
-const nowpaymentsConfig = reactive({
-  api_key: '',
-  ipn_secret: '',
-  api_base_url: 'https://api.nowpayments.io',
-  ipn_callback_url: 'https://shop.furry.vg/api/v1/payments/webhook/nowpayments',
-  success_url: 'https://shop.furry.vg/pay',
-  cancel_url: 'https://shop.furry.vg/pay',
-  price_currency: 'cny',
-  pay_currency: '',
-  is_fixed_rate: false,
-  is_fee_paid_by_user: false,
-})
-
 const epayChannelOptions = [
   { value: 'wechat', label: 'admin.paymentChannels.channelTypes.wechat' },
   { value: 'alipay', label: 'admin.paymentChannels.channelTypes.alipay' },
@@ -476,19 +463,6 @@ const resetDujiaoPayConfig = () => {
   dujiaopayConfig.cancel_url = 'https://yourdomain.com/pay'
 }
 
-const resetNowpaymentsConfig = () => {
-  nowpaymentsConfig.api_key = ''
-  nowpaymentsConfig.ipn_secret = ''
-  nowpaymentsConfig.api_base_url = 'https://api.nowpayments.io'
-  nowpaymentsConfig.ipn_callback_url = 'https://shop.furry.vg/api/v1/payments/webhook/nowpayments'
-  nowpaymentsConfig.success_url = 'https://shop.furry.vg/pay'
-  nowpaymentsConfig.cancel_url = 'https://shop.furry.vg/pay'
-  nowpaymentsConfig.price_currency = 'cny'
-  nowpaymentsConfig.pay_currency = ''
-  nowpaymentsConfig.is_fixed_rate = false
-  nowpaymentsConfig.is_fee_paid_by_user = false
-}
-
 const resetAllConfigs = () => {
   resetEpayConfig()
   resetPaypalConfig()
@@ -500,7 +474,6 @@ const resetAllConfigs = () => {
   resetTokenpayConfig()
   resetOkpayConfig()
   resetDujiaoPayConfig()
-  resetNowpaymentsConfig()
 }
 
 // --- Apply functions ---
@@ -635,19 +608,6 @@ const applyDujiaoPayConfig = (raw: Record<string, unknown>) => {
   dujiaopayConfig.fiat_currency = String(raw.fiat_currency || 'CNY').toUpperCase()
   dujiaopayConfig.success_url = String(raw.success_url || '')
   dujiaopayConfig.cancel_url = String(raw.cancel_url || '')
-}
-
-const applyNowpaymentsConfig = (raw: Record<string, unknown>) => {
-  nowpaymentsConfig.api_key = String(raw.api_key || '')
-  nowpaymentsConfig.ipn_secret = String(raw.ipn_secret || '')
-  nowpaymentsConfig.api_base_url = String(raw.api_base_url || 'https://api.nowpayments.io')
-  nowpaymentsConfig.ipn_callback_url = String(raw.ipn_callback_url || '')
-  nowpaymentsConfig.success_url = String(raw.success_url || '')
-  nowpaymentsConfig.cancel_url = String(raw.cancel_url || '')
-  nowpaymentsConfig.price_currency = String(raw.price_currency || 'cny')
-  nowpaymentsConfig.pay_currency = String(raw.pay_currency || '')
-  nowpaymentsConfig.is_fixed_rate = Boolean(raw.is_fixed_rate)
-  nowpaymentsConfig.is_fee_paid_by_user = Boolean(raw.is_fee_paid_by_user)
 }
 
 // --- Build functions ---
@@ -892,19 +852,6 @@ const buildDujiaoPayConfig = () => {
   return config
 }
 
-const buildNowpaymentsConfig = () => ({
-  api_key: nowpaymentsConfig.api_key.trim(),
-  ipn_secret: nowpaymentsConfig.ipn_secret.trim(),
-  api_base_url: nowpaymentsConfig.api_base_url.trim(),
-  ipn_callback_url: nowpaymentsConfig.ipn_callback_url.trim(),
-  success_url: nowpaymentsConfig.success_url.trim(),
-  cancel_url: nowpaymentsConfig.cancel_url.trim(),
-  price_currency: nowpaymentsConfig.price_currency.trim().toLowerCase(),
-  pay_currency: nowpaymentsConfig.pay_currency.trim().toLowerCase(),
-  is_fixed_rate: nowpaymentsConfig.is_fixed_rate,
-  is_fee_paid_by_user: nowpaymentsConfig.is_fee_paid_by_user,
-})
-
 // token_id 由管理员手动输入，提交前统一规范化，避免大小写或空格写进 channel_type。
 const resolveDujiaopayChannelType = () =>
   dujiaopayConfig.order_mode === 'cashier'
@@ -919,7 +866,7 @@ watch(
     if (applyingChannelData.value) {
       return
     }
-  if (value === 'epay') {
+    if (value === 'epay') {
       const allowed = epayChannelOptions.map((option) => option.value)
       if (!allowed.includes(form.channel_type)) {
         form.channel_type = allowed[0] || 'wechat'
@@ -929,9 +876,9 @@ watch(
       if (!allowed.includes(form.channel_type)) {
         form.channel_type = allowed[0] || 'paypal'
       }
-  } else if (value === 'bepusdt') {
-    form.channel_type = 'bepusdt'
-  } else if (value === 'epusdt') {
+    } else if (value === 'bepusdt') {
+      form.channel_type = 'bepusdt'
+    } else if (value === 'epusdt') {
       form.channel_type = 'epusdt'
     } else if (value === 'okpay') {
       const allowed = okpayChannelOptions.map((option) => option.value)
@@ -1112,7 +1059,6 @@ watch(
           applyTokenpayConfig(channel.config_json)
           applyOkpayConfig(channel.config_json)
           applyDujiaoPayConfig(channel.config_json)
-          applyNowpaymentsConfig(channel.config_json)
           if (channel.provider_type === 'okpay' && !String(form.channel_type || '').trim()) {
             form.channel_type = resolveOkpayChannelTypeFromConfig(channel.config_json)
           }
@@ -1249,11 +1195,6 @@ const handleSubmit = async () => {
       ...configJson,
       ...buildDujiaoPayConfig(),
     }
-  } else if (form.provider_type === 'nowpayments') {
-    configJson = {
-      ...configJson,
-      ...buildNowpaymentsConfig(),
-    }
   }
 
   // 专用表单构建器可能会重写同名字段；高级 JSON 中的显式 null
@@ -1275,7 +1216,7 @@ const handleSubmit = async () => {
             ? 'epusdt'
             : form.provider_type === 'dujiaopay'
               ? resolveDujiaopayChannelType()
-              : form.channel_type,
+          : form.channel_type,
     interaction_mode: form.interaction_mode,
     fee_rate: String(form.fee_rate || '0').trim(),
     fixed_fee: String(form.fixed_fee || '0').trim(),
@@ -1341,15 +1282,10 @@ const closeModal = () => {
                 <SelectItem value="epusdt">{{ t('admin.paymentChannels.providerTypes.epusdt') }}</SelectItem>
                 <SelectItem value="okpay">{{ t('admin.paymentChannels.providerTypes.okpay') }}</SelectItem>
                 <SelectItem value="tokenpay">{{ t('admin.paymentChannels.providerTypes.tokenpay') }}</SelectItem>
-                <SelectItem value="nowpayments">{{ t('admin.paymentChannels.providerTypes.nowpayments') }}</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div v-if="form.provider_type === 'nowpayments'" class="min-w-0">
-            <label class="block text-xs font-medium text-muted-foreground mb-1.5">NOWPayments currency</label>
-            <Input v-model="form.channel_type" placeholder="usdtbsc / usdtton" />
-          </div>
-          <div v-else-if="form.provider_type !== 'tokenpay' && form.provider_type !== 'bepusdt' && form.provider_type !== 'epusdt' && form.provider_type !== 'dujiaopay'" class="min-w-0">
+          <div v-if="form.provider_type !== 'tokenpay' && form.provider_type !== 'bepusdt' && form.provider_type !== 'epusdt' && form.provider_type !== 'dujiaopay'" class="min-w-0">
             <label class="block text-xs font-medium text-muted-foreground mb-1.5">{{ t('admin.paymentChannels.modal.channelType') }}</label>
             <Select v-model="form.channel_type">
               <SelectTrigger class="h-9 w-full">
@@ -1957,50 +1893,6 @@ const closeModal = () => {
             </div>
           </div>
           <div class="mt-3 text-xs text-muted-foreground">{{ t('admin.paymentChannels.modal.dujiaopayHint') }}</div>
-        </div>
-
-        <div v-if="form.provider_type === 'nowpayments'" class="min-w-0 rounded-xl border border-border bg-muted/20 p-4 overflow-hidden">
-          <div class="text-sm font-semibold text-foreground mb-3">NOWPayments Config</div>
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 [&>*]:min-w-0">
-            <div class="min-w-0 md:col-span-2">
-              <label class="block text-xs font-medium text-muted-foreground mb-1.5">API Key</label>
-              <Input v-model="nowpaymentsConfig.api_key" type="password" placeholder="NOWPayments API key" />
-            </div>
-            <div class="min-w-0 md:col-span-2">
-              <label class="block text-xs font-medium text-muted-foreground mb-1.5">IPN Secret</label>
-              <Input v-model="nowpaymentsConfig.ipn_secret" type="password" placeholder="NOWPayments IPN secret" />
-            </div>
-            <div class="min-w-0">
-              <label class="block text-xs font-medium text-muted-foreground mb-1.5">API Base URL</label>
-              <Input v-model="nowpaymentsConfig.api_base_url" placeholder="https://api.nowpayments.io" />
-            </div>
-            <div class="min-w-0">
-              <label class="block text-xs font-medium text-muted-foreground mb-1.5">Pay Currency</label>
-              <Input v-model="nowpaymentsConfig.pay_currency" placeholder="留空则使用当前渠道类型，如 usdtbsc / usdtton" />
-            </div>
-            <div class="min-w-0">
-              <label class="block text-xs font-medium text-muted-foreground mb-1.5">Price Currency</label>
-              <Input v-model="nowpaymentsConfig.price_currency" placeholder="cny" />
-            </div>
-            <div class="min-w-0">
-              <label class="block text-xs font-medium text-muted-foreground mb-1.5">IPN Callback URL</label>
-              <Input v-model="nowpaymentsConfig.ipn_callback_url" placeholder="https://shop.example.com/api/v1/payments/webhook/nowpayments" />
-            </div>
-            <div class="min-w-0">
-              <label class="block text-xs font-medium text-muted-foreground mb-1.5">Success URL</label>
-              <Input v-model="nowpaymentsConfig.success_url" placeholder="https://shop.example.com/pay" />
-            </div>
-            <div class="min-w-0">
-              <label class="block text-xs font-medium text-muted-foreground mb-1.5">Cancel URL</label>
-              <Input v-model="nowpaymentsConfig.cancel_url" placeholder="https://shop.example.com/pay" />
-            </div>
-            <label class="flex items-center gap-2 text-sm text-foreground">
-              <input v-model="nowpaymentsConfig.is_fixed_rate" type="checkbox" /> Fixed rate
-            </label>
-            <label class="flex items-center gap-2 text-sm text-foreground">
-              <input v-model="nowpaymentsConfig.is_fee_paid_by_user" type="checkbox" /> Fee paid by user
-            </label>
-          </div>
         </div>
 
         <div>

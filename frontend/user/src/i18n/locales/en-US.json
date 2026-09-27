@@ -1239,6 +1239,7 @@
     "walletOnlyHint": "Only wallet balance payment is accepted",
     "walletInsufficientHint": "Insufficient wallet balance, please recharge first",
     "feeFree": "No fee",
+    "userPaysFee": "You pay the network fee",
     "channelTypes": {
       "wechat": "WeChat",
       "wxpay": "WeChat",

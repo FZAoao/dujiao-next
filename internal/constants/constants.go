@@ -56,14 +56,15 @@ const (
 
 // 支付提供方常量
 const (
-	PaymentProviderOfficial  = "official"
-	PaymentProviderEpay      = "epay"
-	PaymentProviderEpusdt    = "epusdt"
-	PaymentProviderBepusdt   = "bepusdt"
-	PaymentProviderDujiaoPay = "dujiaopay"
-	PaymentProviderOkpay     = "okpay"
-	PaymentProviderTokenpay  = "tokenpay"
-	PaymentProviderWallet    = "wallet"
+	PaymentProviderOfficial    = "official"
+	PaymentProviderEpay        = "epay"
+	PaymentProviderEpusdt      = "epusdt"
+	PaymentProviderBepusdt     = "bepusdt"
+	PaymentProviderDujiaoPay   = "dujiaopay"
+	PaymentProviderOkpay       = "okpay"
+	PaymentProviderTokenpay    = "tokenpay"
+	PaymentProviderWallet      = "wallet"
+	PaymentProviderNowpayments = "nowpayments"
 )
 
 // 支付渠道类型常量
