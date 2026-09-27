@@ -408,7 +408,6 @@ export function usePayment() {
     if (!customerFeeApplied.value) return ''
     return formatMoney(String(paymentResult.value?.fee_amount || '0'), order.value?.currency)
   })
-  const userPaysFee = computed(() => paymentResult.value?.user_pays_fee === true)
   const payableAmountDisplay = computed(() => {
     if (paymentResult.value?.payable_amount !== undefined && paymentResult.value?.payable_amount !== null && paymentResult.value?.payable_amount !== '') {
       return formatMoney(String(paymentResult.value.payable_amount), payableAmountCurrency.value)
@@ -1396,7 +1395,6 @@ export function usePayment() {
     // amounts
     customerFeeApplied,
     customerFeeAmountDisplay,
-    userPaysFee,
     payableAmountDisplay,
     walletBalanceDisplay,
     expectedWalletPaidDisplay,

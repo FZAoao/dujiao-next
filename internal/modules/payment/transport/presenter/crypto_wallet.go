@@ -67,6 +67,21 @@ func ExtractCryptoWalletInfo(providerType, interactionMode string, payload jsonm
 				readPayloadString(payload, "data", "token_id"),
 			),
 		}
+	case constants.PaymentProviderNowpayments:
+		return CryptoWalletInfo{
+			Address: firstPayloadString(
+				readPayloadString(payload, "pay_address"),
+				readPayloadString(payload, "data", "pay_address"),
+			),
+			ChainAmount: firstPayloadString(
+				readPayloadString(payload, "pay_amount"),
+				readPayloadString(payload, "data", "pay_amount"),
+			),
+			TokenID: firstPayloadString(
+				readPayloadString(payload, "pay_currency"),
+				readPayloadString(payload, "data", "pay_currency"),
+			),
+		}
 	default:
 		return CryptoWalletInfo{}
 	}

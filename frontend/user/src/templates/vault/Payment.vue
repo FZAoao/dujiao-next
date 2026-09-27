@@ -92,7 +92,8 @@
             :order="order"
             :payment-result="paymentResult"
             :customer-fee-applied="customerFeeApplied"
-            :customer-fee-amount-display="customerFeeAmountDisplay"
+          :customer-fee-amount-display="customerFeeAmountDisplay"
+          :user-pays-fee="userPaysFee"
             :payable-amount-display="payableAmountDisplay"
             :wallet-paid-display="paymentWalletPaidDisplay"
             :online-pay-display="paymentOnlinePayDisplay"
@@ -269,7 +270,7 @@ const {
   paymentResultTitle, paymentGuideTitle, paymentGuideTip, showPayLink, showTelegramPayHint, payLinkOpenedTip,
   cryptoWalletAddress, cryptoPaymentDetails, hasCryptoPaymentDetails, qrUsingPayLinkFallback, showQRCode, qrImageUrl,
   orderExpired, orderCanceled, paymentAlert, countdownExpired, countdownText, showCountdown, showResultView, pollingActive, orderItems,
-  customerFeeApplied, customerFeeAmountDisplay, payableAmountDisplay, walletBalanceDisplay,
+  customerFeeApplied, customerFeeAmountDisplay, userPaysFee, payableAmountDisplay, walletBalanceDisplay,
   expectedWalletPaidDisplay, expectedOnlinePayDisplay, expectedOnlinePayCents, requiresOnlineChannel,
   paymentWalletPaidDisplay, paymentOnlinePayDisplay, isChannelDisabledForAmount, channelAmountLimitHint, canSubmitPayment,
   formatDate, statusLabel, formatMoney, hasDiscountAmount, formatDiscountMoney, getLocalizedText, orderItemSkuText, fulfillmentTypeLabelText,

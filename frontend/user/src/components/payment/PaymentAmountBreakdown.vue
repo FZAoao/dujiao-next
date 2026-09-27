@@ -27,6 +27,9 @@
         <span>{{ t('payment.feeAmountLabel') }}</span>
         <span class="font-semibold">{{ customerFeeAmountDisplay }}</span>
       </div>
+      <div v-if="userPaysFee" class="mt-2 rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-warning">
+        {{ t('payment.userPaysFee') }}
+      </div>
       <div v-if="paymentResult.wallet_paid_amount !== undefined" class="flex items-center justify-between gap-4">
         <span class="text-muted-foreground">{{ t('payment.walletDeductLabel') }}</span>
         <span class="font-medium text-foreground">{{ walletPaidDisplay }}</span>
@@ -54,6 +57,7 @@ defineProps<{
   paymentResult: any
   customerFeeApplied: boolean
   customerFeeAmountDisplay: string
+  userPaysFee?: boolean
   payableAmountDisplay: string
   walletPaidDisplay: string
   onlinePayDisplay: string

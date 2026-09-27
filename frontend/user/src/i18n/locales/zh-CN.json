@@ -1192,6 +1192,7 @@
     "walletOnlyHint": "当前仅支持钱包余额支付",
     "walletInsufficientHint": "钱包余额不足，请先充值",
     "feeFree": "免手续费",
+    "userPaysFee": "You pay the network fee（由你承担支付网络手续费）",
     "channelTypes": {
       "wechat": "微信",
       "wxpay": "微信",

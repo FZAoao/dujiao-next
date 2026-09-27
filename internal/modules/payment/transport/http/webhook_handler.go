@@ -32,6 +32,7 @@ type PaymentWebhookService interface {
 	HandlePaypalWebhook(input WebhookCallbackInput) (*paymentdomain.Payment, string, error)
 	HandleStripeWebhook(input WebhookCallbackInput) (*paymentdomain.Payment, string, error)
 	HandleDujiaoPayWebhook(input WebhookCallbackInput) (*paymentdomain.Payment, string, error)
+	HandleNowpaymentsWebhook(input WebhookCallbackInput) (*paymentdomain.Payment, string, error)
 }
 
 // ExceptionAlerter 支付异常告警入队端口。
@@ -51,6 +52,10 @@ type StripeWebhookQuery struct {
 
 // DujiaoPayWebhookQuery DujiaoPay webhook 查询参数。
 type DujiaoPayWebhookQuery struct {
+	ChannelID uint `form:"channel_id"`
+}
+
+type NowpaymentsWebhookQuery struct {
 	ChannelID uint `form:"channel_id"`
 }
 
@@ -198,6 +203,40 @@ func (h *WebhookHandler) DujiaoPayWebhook(c *gin.Context) {
 		return
 	}
 	respondWebhookSuccess(c, log, "dujiaopay_webhook", query.ChannelID, eventType, payment)
+}
+
+// NowpaymentsWebhook NOWPayments IPN 回调。
+func (h *WebhookHandler) NowpaymentsWebhook(c *gin.Context) {
+	log := ginutil.RequestLog(c)
+	var query NowpaymentsWebhookQuery
+	_ = c.ShouldBindQuery(&query)
+	body, err := readWebhookBody(c)
+	if err != nil {
+		ginutil.RespondError(c, response.CodeBadRequest, "error.bad_request", err)
+		return
+	}
+	log.Infow("nowpayments_webhook_received",
+		"channel_id", query.ChannelID,
+		"client_ip", c.ClientIP(),
+		"body_size", len(body),
+		"signature_present", strings.TrimSpace(c.GetHeader("x-nowpayments-sig")) != "",
+	)
+	payment, eventType, err := h.webhooks.HandleNowpaymentsWebhook(WebhookCallbackInput{
+		ChannelID: query.ChannelID,
+		Headers:   collectRequestHeaders(c),
+		Body:      body,
+		Context:   c.Request.Context(),
+	})
+	if err != nil {
+		log.Warnw("nowpayments_webhook_handle_failed", "channel_id", query.ChannelID, "event_type", eventType, "error", err)
+		h.enqueuePaymentExceptionAlert(c, jsonmap.JSON{
+			"alert_type": "nowpayments_webhook_handle_failed", "alert_level": "error",
+			"message": strings.TrimSpace(err.Error()), "provider": constants.PaymentProviderNowpayments,
+		})
+		respondPaymentCallbackError(c, err)
+		return
+	}
+	respondWebhookSuccess(c, log, "nowpayments_webhook", query.ChannelID, eventType, payment)
 }
 
 func readWebhookBody(c *gin.Context) ([]byte, error) {

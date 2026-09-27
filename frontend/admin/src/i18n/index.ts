@@ -1193,6 +1193,7 @@ const messages = {
           dujiaopay: 'DujiaoPay',
           tokenpay: 'TokenPay',
           wallet: '钱包余额',
+          nowpayments: 'NOWPayments',
         },
         channelTypes: {
           wechat: '微信',
@@ -5640,6 +5641,7 @@ const messages = {
           dujiaopay: 'DujiaoPay',
           tokenpay: 'TokenPay',
           wallet: '錢包餘額',
+          nowpayments: 'NOWPayments',
         },
         channelTypes: {
           wechat: '微信',
@@ -10087,6 +10089,7 @@ const messages = {
           dujiaopay: 'DujiaoPay',
           tokenpay: 'TokenPay',
           wallet: 'Wallet Balance',
+          nowpayments: 'NOWPayments',
         },
         channelTypes: {
           wechat: 'WeChat',
